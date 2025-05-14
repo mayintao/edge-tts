@@ -1,5 +1,5 @@
 from flask import Flask, request, send_file, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import edge_tts
 import asyncio
 import os
@@ -30,7 +30,9 @@ cleanup_old_audio_files()
 
 @app.route("/api/ai/tts", methods=["POST", "OPTIONS"])
 def tts():
-    
+    if request.method == "OPTIONS":
+        return '', 200  # CORS预检返回200即可
+
     data = request.json
     text = data.get("text", "")
     if not text:
