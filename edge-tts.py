@@ -6,11 +6,15 @@ import os
 import uuid
 import time
 
+# 创建 requirements.txt：pip freeze > requirements.txt
+# Start Command: python app.py
+
 app = Flask(__name__)
 CORS(app)
 
 OUTPUT_DIR = "audio"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 
 def cleanup_old_audio_files(days=1):
     now = time.time()
@@ -20,13 +24,13 @@ def cleanup_old_audio_files(days=1):
         if os.path.isfile(path) and os.path.getmtime(path) < cutoff:
             os.remove(path)
 
+
 cleanup_old_audio_files()
+
 
 @app.route("/api/ai/tts", methods=["POST", "OPTIONS"])
 def tts():
-    if request.method == "OPTIONS":
-        return '', 200
-
+    
     data = request.json
     text = data.get("text", "")
     if not text:
@@ -39,6 +43,7 @@ def tts():
     url = request.host_url.rstrip('/') + f"/api/ai/audio/{filename}"
     return jsonify({"url": url})
 
+
 async def generate_tts(text, path):
     communicate = edge_tts.Communicate(
         text,
@@ -48,6 +53,7 @@ async def generate_tts(text, path):
     )
     await communicate.save(path)
 
+
 @app.route("/api/ai/audio/<filename>")
 def serve_audio(filename):
     path = os.path.join(OUTPUT_DIR, filename)
@@ -56,5 +62,7 @@ def serve_audio(filename):
     else:
         return "File not found", 404
 
+
 if __name__ == "__main__":
-    app.run(debug=False)
+    port = int(os.environ.get("PORT", 10000))  # Render 默认 10000
+    app.run(host="0.0.0.0", port=port)
