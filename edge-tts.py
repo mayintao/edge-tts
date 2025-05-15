@@ -18,19 +18,13 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def cleanup_old_audio_files(days=1):
     now = time.time()
-    cutoff = now - days * 86400
+    cutoff = now - days * 3600
     for f in os.listdir(OUTPUT_DIR):
         path = os.path.join(OUTPUT_DIR, f)
         if os.path.isfile(path) and os.path.getmtime(path) < cutoff:
             os.remove(path)
 
-
 cleanup_old_audio_files()
-
-
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
 
 
 @app.route("/api/ai/tts", methods=["POST", "OPTIONS"])
@@ -40,21 +34,23 @@ def tts():
 
     data = request.json
     text = data.get("text", "")
+    voice = data.get("voice", "XiaoxiaoNeural")
+    print(voice)
     if not text:
         return jsonify({"error": "No text provided"}), 400
 
     filename = f"{uuid.uuid4().hex}.mp3"
     filepath = os.path.join(OUTPUT_DIR, filename)
 
-    asyncio.run(generate_tts(text, filepath))
+    asyncio.run(generate_tts(text, filepath, voice))
     url = request.host_url.rstrip('/') + f"/api/ai/audio/{filename}"
     return jsonify({"url": url})
 
 
-async def generate_tts(text, path):
+async def generate_tts(text, path, voice):
     communicate = edge_tts.Communicate(
         text,
-        voice="zh-CN-YunyangNeural",
+        voice=voice,
         rate="-20%",
         pitch="-2Hz"
     )
