@@ -26,6 +26,10 @@ def cleanup_old_audio_files(days=1):
 
 cleanup_old_audio_files()
 
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
+
 
 @app.route("/api/ai/tts", methods=["POST", "OPTIONS"])
 def tts():
