@@ -4,7 +4,7 @@ import edge_tts
 import asyncio
 import os
 import uuid
-import time
+from datetime import datetime
 
 # 创建 requirements.txt：pip freeze > requirements.txt
 # Start Command: python app.py
@@ -15,16 +15,6 @@ CORS(app)
 OUTPUT_DIR = "audio"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-
-def cleanup_old_audio_files(days=1):
-    now = time.time()
-    cutoff = now - days * 3600
-    for f in os.listdir(OUTPUT_DIR):
-        path = os.path.join(OUTPUT_DIR, f)
-        if os.path.isfile(path) and os.path.getmtime(path) < cutoff:
-            os.remove(path)
-
-cleanup_old_audio_files()
 
 @app.route('/')
 def hello_world():
@@ -68,6 +58,32 @@ def serve_audio(filename):
         return send_file(path, mimetype="audio/mpeg")
     else:
         return "File not found", 404
+
+
+@app.route("/api/ai/clear-history", methods=["POST"])
+def clear_history():
+    deleted_files = []
+    for f in os.listdir(OUTPUT_DIR):
+        path = os.path.join(OUTPUT_DIR, f)
+        if os.path.isfile(path) and f.endswith(".mp3"):
+            os.remove(path)
+            deleted_files.append(f)
+    return jsonify({"message": "History cleared", "deleted_files": deleted_files})
+
+
+@app.route("/api/ai/history", methods=["GET"])
+def get_history():
+    files = []
+    for f in os.listdir(OUTPUT_DIR):
+        path = os.path.join(OUTPUT_DIR, f)
+        if os.path.isfile(path) and f.endswith(".mp3"):
+            files.append({
+                "filename": f,
+                "url": request.host_url.rstrip('/') + f"/api/ai/audio/{f}",
+                "timestamp": datetime.fromtimestamp(os.path.getmtime(path)).isoformat()
+            })
+    files.sort(key=lambda x: x["timestamp"], reverse=True)  # 最近的在前
+    return jsonify(files)
 
 
 if __name__ == "__main__":
