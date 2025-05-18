@@ -60,15 +60,13 @@ def serve_audio(filename):
         return "File not found", 404
 
 
-@app.route("/api/ai/clear-history", methods=["POST"])
+@app.route("/api/ai/clear-history", methods=["GET"])
 def clear_history():
-    deleted_files = []
     for f in os.listdir(OUTPUT_DIR):
         path = os.path.join(OUTPUT_DIR, f)
-        if os.path.isfile(path) and f.endswith(".mp3"):
+        if os.path.isfile(path):
             os.remove(path)
-            deleted_files.append(f)
-    return jsonify({"message": "History cleared", "deleted_files": deleted_files})
+    return jsonify({"message": "History cleared"})
 
 
 @app.route("/api/ai/history", methods=["GET"])
