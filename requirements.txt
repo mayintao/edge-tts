@@ -4,5 +4,5 @@ requests==2.32.3
 pillow==10.3.0
 numpy==1.26.4
 opencv-python-headless==4.9.0.80
-paddlepaddle==2.6.1
-paddleocr==2.7.0.3
+paddlepaddle==3.3.0
+paddleocr==3.4.0
