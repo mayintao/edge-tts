@@ -108,9 +108,9 @@ def get_history():
 ####################OCR文字识别####################
 # 初始化 OCR（支持中英文日文）
 ocr = PaddleOCR(
-    use_doc_orientation_classify=False,
-    use_doc_unwarping=False,
-    use_textline_orientation=False
+    lang="ch",
+    use_angle_cls=False,
+    show_log=False
 )
 
 @app.route("/ai/api_ocr_image", methods=["POST"])
