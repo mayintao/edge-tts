@@ -4,8 +4,10 @@ import uuid
 import requests
 from datetime import datetime
 
-from paddleocr import PaddleOCR
 import os, json, base64, uuid
+os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
+from paddleocr import PaddleOCR
+
 from io import BytesIO
 from PIL import Image
 
@@ -17,6 +19,11 @@ os.makedirs(RESULT_FOLDER, exist_ok=True)
 
 app = Flask(__name__)
 CORS(app)
+
+# 初始化 OCR（支持中英文日文） 预加载
+print("OCR loading...")
+ocr = PaddleOCR(use_textline_orientation=True, lang="ch")
+print("OCR loaded")
 
 OUTPUT_DIR = "audio"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -106,13 +113,6 @@ def get_history():
 
 
 ####################OCR文字识别####################
-# 初始化 OCR（支持中英文日文）
-ocr = PaddleOCR(
-    use_textline_orientation=True,
-    lang="ch",
-    show_log=False,
-    use_gpu=False
-)
 
 @app.route("/ai/api_ocr_image", methods=["POST"])
 def api_ocr_image():
