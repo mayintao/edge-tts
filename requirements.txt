@@ -1,8 +1,7 @@
 Flask==3.1.0
 flask-cors==5.0.1
 requests==2.32.3
-pillow==10.3.0
-numpy==1.26.4
-opencv-python-headless==4.9.0.80
+pillow==12.1.1
+numpy==2.4.2
 paddlepaddle==3.3.0
 paddleocr==3.4.0
