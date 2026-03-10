@@ -5,7 +5,11 @@ import requests
 from datetime import datetime
 
 import os, json, base64, uuid
+# ---------------- Render 优化环境变量 ----------------
+# 禁止联网检查模型，加快启动
 os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
+# 限制CPU线程，减少内存
+os.environ["OMP_NUM_THREADS"] = "1"
 from paddleocr import PaddleOCR
 
 from io import BytesIO
@@ -20,10 +24,12 @@ os.makedirs(RESULT_FOLDER, exist_ok=True)
 app = Flask(__name__)
 CORS(app)
 
-# 初始化 OCR（支持中英文日文） 预加载
-print("OCR loading...")
-ocr = PaddleOCR(use_textline_orientation=True, lang="ch")
-print("OCR loaded")
+# 初始化 OCR（支持中英文日文）
+ocr = PaddleOCR(
+    use_doc_orientation_classify=False,
+    use_doc_unwarping=False,
+    use_textline_orientation=False
+)
 
 OUTPUT_DIR = "audio"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
